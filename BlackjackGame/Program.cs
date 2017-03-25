@@ -31,15 +31,24 @@ namespace BlackjackGame
 
             //Counting cards in players hand
             double pHandTotal = PCardSum(pCardsOnTable);
-            PCardSumLogic(pHandTotal);
+            PCardSumLogic(pHandTotal, pCardsOnTable, newDeck);
+
+
+            //dealer turn over face down card2
+            Console.WriteLine($"Dealer shows: ");
+            foreach (var dCard in dCardsOnTable)
+            {
+                Console.WriteLine(dCard);
+            }
 
             //counting cards in dealers hand
-            //!facedown card 2
+            double dHandTotal = DCardSum(dCardsOnTable);
+            DCardSumLogic(dHandTotal, newDeck, dCardsOnTable);
 
             //second round; hit/stand or bust/blackjack
 
             //hit logic
-
+            
             //stand logic
         }
         private static void welcome()
@@ -66,19 +75,6 @@ namespace BlackjackGame
             return randomDeck;
         }
 
-        static List<Card> DealingCardsToPlayer(List<Card>randomDeck)
-        {
-            var playerHand = new List<Card>();
-
-         for (int counter = 0; counter < 4; counter++)
-         {
-            if (counter % 2 == 0)
-             {
-                 playerHand.Add(randomDeck[counter]);
-             }
-         }
-         return playerHand;
-        }
         static List<Card> DealingCardsToDealer(List<Card> randomDeck)
         {
             var dealerHand = new List<Card>();
@@ -88,11 +84,31 @@ namespace BlackjackGame
                 if (counter % 2 == 1)
                 {
                     dealerHand.Add(randomDeck[counter]);
+                    randomDeck.RemoveAt(counter);
                 }
             }
             return dealerHand;
         }
+        static List<Card> DealingCardsToPlayer(List<Card>randomDeck)
+        {
+            var playerHand = new List<Card>();
 
+         for (int counter = 0; counter < 4; counter++)
+         {
+            if (counter % 2 == 0)
+             {
+                 playerHand.Add(randomDeck[counter]);
+                    randomDeck.RemoveAt(counter);
+             }
+         }
+         return playerHand;
+        }
+
+        static void DisplayDealerCards(List<Card>dealerHand)
+{
+    Console.WriteLine($"Dealer shows: ");
+    Console.WriteLine(dealerHand[0]);
+}
         static void DisplayPlayerCards(List<Card>playerHand)
         {
             Console.WriteLine($"Your cards are: ");
@@ -103,45 +119,110 @@ namespace BlackjackGame
         }
         }
 
-        static void DisplayDealerCards(List<Card>dealerHand)
-{
-    Console.WriteLine($"Dealers cards are: ");
-    foreach (var dCards in dealerHand)
-    {
-        Console.WriteLine(dCards);
-    }
-}
-
         static double PCardSum(List<Card>playerHand)
         {
-            List<int> cardValue = new List<int>();
+            List<int> pCardValue = new List<int>();
             
                 foreach (var pCard in playerHand)
                 {
-                    cardValue.Add(pCard.GetCardValue());
+                    pCardValue.Add(pCard.GetCardValue());
                 }
-            double total = cardValue.Sum();
-            return total;
+            double pTotal = pCardValue.Sum();
+            return pTotal;
+        }
+        static double DCardSum(List<Card> dealerHand)
+        {
+            List<int> dCardValue = new List<int>();
+
+            foreach (var dCard in dealerHand)
+            {
+                dCardValue.Add(dCard.GetCardValue());
+            }
+            double dTotal = dCardValue.Sum();
+            return dTotal;
         }
 
-        static void PCardSumLogic(double total)
+        static void PCardSumLogic(double pTotal, List<Card> playerHand, List<Card>randomDeck)
         {
-            if (total == 21)
+            if (pTotal == 21)
             {
-                Console.WriteLine($"{total}");
+                Console.WriteLine($"{pTotal}");
                 Console.WriteLine("BLACKJACK!");
                 Console.WriteLine("You Win!");
             }
-            else if (total < 21)
+            else if (pTotal<21)
             {
-                Console.WriteLine($"{total}, would you like to hit of stand?");
+                Console.WriteLine($"{pTotal}, would you like to (hit) or (stand)?");
+                string hitMe = Console.ReadLine();
+                if (hitMe.Equals("hit"))
+                {
+                    playerHand.Add(randomDeck[0]);
+                    randomDeck.RemoveAt(0);
+                    Console.WriteLine($"{playerHand[2]}");
+                    double pNewTotal = pTotal + (playerHand[2].GetCardValue()); 
+                    Console.WriteLine($"{pNewTotal}");
+                }
+                else if (hitMe.Equals("stand"))
+                {
+                    //StandLogic(pTotal, dTotal);
+                }
             }
-            else
+            else if (pTotal>21)
             {
-                Console.WriteLine($"{total}");
+                Console.WriteLine($"{pTotal}");
                 Console.WriteLine("BUUUUST");
                 Console.WriteLine("Better Luck Next Time");
             }
         }
+        static void DCardSumLogic(double dTotal, List<Card> dealerHand, List<Card> randomDeck)
+        {
+            if (dTotal == 21)
+            {
+                Console.WriteLine($"{dTotal}");
+                Console.WriteLine("BLACKJACK!");
+                Console.WriteLine("Would you like to play again?");
+            }
+            else if (dTotal >= 16)
+            {
+                Console.WriteLine($"{dTotal}");
+                Console.WriteLine("I will stand");
+            }
+            else if (dTotal < 16)
+            {
+                Console.WriteLine($"{dTotal}");
+                Console.WriteLine("I'll take another card");
+
+                dealerHand.Add(randomDeck[0]);
+                randomDeck.RemoveAt(0);
+                Console.WriteLine($"{dealerHand[2]}");
+                double dNewTotal = dTotal + (dealerHand[2].GetCardValue());
+                Console.WriteLine($"{dNewTotal}");
+            }
+            else if (dTotal > 21)
+            {
+                Console.WriteLine($"{dTotal}");
+                Console.WriteLine("That's a Bust for me, you win this round.");
+            }
+        }
+
+        static void StandLogic(double pTotal, double dTotal)
+        {
+            if (pTotal > dTotal)
+            {
+                Console.WriteLine($"Your {pTotal} beats my {dTotal}.");
+                Console.WriteLine("YOU WIN");
+            }
+            else if (pTotal < dTotal)
+            {
+                Console.WriteLine($"My {dTotal} beats your {pTotal}.");
+                Console.WriteLine("YOU LOSE");
+            }
+            else if (pTotal == dTotal)
+            {
+                Console.WriteLine($"Your {pTotal} is equal to my {dTotal}.");
+                Console.WriteLine("DRAW");
+            }
+        }
     }
+
 }
