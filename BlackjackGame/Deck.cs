@@ -6,12 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlackjackGame
 {
-        public enum Suit
-        {
-            Hearts,
-            Clubs,
-            Diamonds,
-            Spades
-        }
-    
+    class Deck
+    {
+    }
 }
